@@ -1,7 +1,7 @@
 from math import sin, cos, sqrt, asin, atan2, radians, degrees, pi
 
-from constants import ARC_DEGREE_LAT, RADIUS_EARTH_M
-from gcs.utils import arcdegree_at_latitude_lng
+from constants import RADIUS_EARTH_M
+from gcs.utils import arcdegree_at_latitude_lat, arcdegree_at_latitude_lng
 
 from shapely.geometry import Point
 
@@ -47,20 +47,20 @@ class LatLng(object):
         self._lng = self._lng_clean * CLEAN_INT_TO_FLOAT
             
     def __repr__(self):
-        return 'LatLng(%f, %f)' % (self.lat, self.lng)
+        return 'LatLng(%.10f, %.10f)' % (self.lat, self.lng)
     
     def __unicode__(self):
         return '%f, %f' % (self.lat, self.lng)
     
     def __eq__(self, other):
-        if other is None:
+        if other is None:            
             return False
         
         if self is other:
             return True
         
         #if we know that the other object is a LatLng we can compare the clean values
-        if other.__class__ is LatLng:
+        if other.__class__ is LatLng:            
             return self._lat_clean == other._lat_clean and self._lng_clean == other._lng_clean
         
         return self._lat_clean == clean_float(other.lat) and self._lng_clean == clean_float(other.lat)
@@ -121,23 +121,24 @@ class LatLng(object):
         '''
         return (self._lng, self._lat)
     
-    def buffer(self, d_km):        
+    def buffer(self, distance):        
           
         '''
-        Returns a "square" centered at the current point that is at least 2 d_km X 2 d_km
+        Returns a "square" centered at the current point that is at least 2 distance X 2 distance
+        Distance is in meters
         '''
         
-        from latlngbounds import LatLngBounds        
+        from latlngbounds import LatLngBounds
         
-        d_lat = d_km / ARC_DEGREE_LAT
+        d_lat = distance / arcdegree_at_latitude_lng(self.lat)
         max_lat = self._lat + d_lat
         min_lat = self._lat - d_lat        
         
-        theta = max_lat        
+        theta = max_lat    
         if self.lat < 0.0:        #if below the equator cos(min_lat) is > than cos(max_lat)
             theta = min_lat
         
-        d_lng = d_km / arcdegree_at_latitude_lng(theta)
+        d_lng = distance / arcdegree_at_latitude_lat(theta)
         
         max_lng = self._lng + d_lng
         min_lng = self._lng - d_lng        

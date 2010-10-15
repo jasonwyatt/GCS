@@ -7,7 +7,7 @@ def arcdegree_at_latitude_lat(lat):
     '''
     Returns the arc distance between a degree of longitude at a given latitude
     '''  
-    return cos(radians(i)) * ARC_DEGREE_LAT
+    return cos(radians(lat)) * ARC_DEGREE_LAT
 
 def arcdegree_at_latitude_lng(lat):
     '''

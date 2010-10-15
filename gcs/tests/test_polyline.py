@@ -59,9 +59,9 @@ class PolylineTestCase(unittest.TestCase):
     def testGeos(self):
         a = Point(0, 1)
         b = Point(1, 0)
-        c = LineString([a, b])                
+        c = LineString([a.coords[0], b.coords[0]])
         
-        poly = polyline.from_linestring(c)
+        poly = polyline.from_linestring(c.coords)
         
         self.assertEqual(poly.first, LatLng(a.y, a.x))
         self.assertEqual(poly.last, LatLng(b.y, b.x))
@@ -86,20 +86,12 @@ class PolylineTestCase(unittest.TestCase):
     def testDistance(self):
         point1 = LatLng(37.739323, -122.473586)
         point2 = LatLng(37.749832, -122.453332)
-        
-        try:
-            Polyline(point1, point1)
-        except:
-            pass
-        else:
-            self.fail('An exception should have been thrown when creating a polyline with two of the same points')
-                    
-        
-        distance1 = Polyline(point1, point2).distance
-        assert round(distance1, 2) == 2.13, "distance calculation off."
+                
+        distance1 = Polyline(point1, point2).distance        
+        assert round(distance1) == 2130.0, "distance calculation off."
         
         distance2 = Polyline(point1, point2, point1).distance
-        assert round(distance2, 2) == 4.26, "distance calculation off."
+        assert round(distance2) == 4260.0, "distance calculation off."
         
     def testInterpolate(self):
         point1 = LatLng(37.739323, -122.473586)
@@ -116,7 +108,10 @@ class PolylineTestCase(unittest.TestCase):
         except ValueError:
             pass
         
-        assert line.interpolate(0.5) == LatLng(37.744578, -122.463460)
+        half = line.interpolate(0.5)
+        
+        self.assertAlmostEquals(half.distance_to(point1), line.distance / 2, 3)
+        assert half == LatLng(37.7445779332, -122.4634597190)
 
 
     def testSplit(self):

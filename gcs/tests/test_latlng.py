@@ -5,19 +5,22 @@ from gcs import LatLng, GeoLine
 
 WIDTH_OF_ROAD_KM =  (3.6576 / 1000) #12 feet radius
 
+SIGNIFICANT_PLACES = 3 #milimeter precision
+
 class LatLngTestCase(unittest.TestCase):
     
     def testBuffer(self):  
-        distance_km = 5.0
+        distance_m = 5000.0
               
         point = LatLng(35.0, 78.0)                
-        bounds = point.buffer(distance_km)
+        bounds = point.buffer(distance_m)
         
-        self.assertAlmostEqual(bounds.height, distance_km * 2)
+        self.assertAlmostEqual(bounds.height, distance_m * 2, SIGNIFICANT_PLACES)
         
         min_width = min(bounds.north_width, bounds.south_width)
+        max_width = min(bounds.north_width, bounds.south_width)
         
-        self.assertAlmostEqual(min_width, distance_km * 2)    
+        self.assertAlmostEqual(max_width, distance_m * 2, SIGNIFICANT_PLACES)    
     
     def testApplyAngleAndBearing(self):
         start = LatLng(35.786100, -78.662430)
