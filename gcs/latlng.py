@@ -1,7 +1,8 @@
 from math import sin, cos, sqrt, asin, atan2, radians, degrees, pi
 
 from constants import RADIUS_EARTH_M
-from gcs.utils import arcdegree_at_latitude_lat, arcdegree_at_latitude_lng
+
+import gcs.arcdegrees.spherical as arcdegrees
 
 from shapely.geometry import Point
 
@@ -124,13 +125,13 @@ class LatLng(object):
     def buffer(self, distance):        
           
         '''
-        Returns a "square" centered at the current point that is at least 2 distance X 2 distance
+        Returns a "square" centered at the current point that is at least 2x distance by 2x distance
         Distance is in meters
         '''
         
         from latlngbounds import LatLngBounds
         
-        d_lat = distance / arcdegree_at_latitude_lng(self.lat)
+        d_lat = distance / arcdegrees.lat_length_at(self.lat)
         max_lat = self._lat + d_lat
         min_lat = self._lat - d_lat        
         
@@ -138,7 +139,7 @@ class LatLng(object):
         if self.lat < 0.0:        #if below the equator cos(min_lat) is > than cos(max_lat)
             theta = min_lat
         
-        d_lng = distance / arcdegree_at_latitude_lat(theta)
+        d_lng = distance / arcdegrees.lng_length_at(theta)
         
         max_lng = self._lng + d_lng
         min_lng = self._lng - d_lng        

@@ -1,9 +1,6 @@
-from copy import copy
 from shapely.geometry import LineString, Point
 
-from gcs.constants import ARC_DEGREE_LAT
-from gcs.utils import arcdegree_at_latitude_wgs84_lat as lat_ratio_at_lat
-from gcs.utils import arcdegree_at_latitude_wgs84_lng as lng_ratio_at_lat
+from gcs.arcdegrees import wgs84
         
 class GeoWindow():
     '''
@@ -65,11 +62,11 @@ class InterpolatedFlattner(GeoWindow):
         
         #find the middle latitude
         self.mid_lat = (self.max_lat + self.min_lat) / 2.0
-                    
-        self.geo_ratio_y = lat_ratio_at_lat(self.mid_lat)
-        self.geo_min_y = self.min_lat #keeps numbers small, not really needed
-                
-        self.geo_ratio_x = lng_ratio_at_lat(self.mid_lat)
+        
+        self.geo_ratio_y,  self.geo_ratio_x = wgs84.length_at(self.mid_lat)
+        
+        #keeps numbers small, not really needed
+        self.geo_min_y = self.min_lat 
         self.geo_min_x = self.min_lng                
     
     def gis_to_cart_point(self, point):
