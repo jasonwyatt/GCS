@@ -56,7 +56,7 @@ class GeoWindow():
         '''    
         return point
     
-class InterpolatedFlattner(GeoWindow):
+class InterpolatedFlattener(GeoWindow):
     
     def initialize(self):        
         
