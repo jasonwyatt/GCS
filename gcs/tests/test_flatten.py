@@ -2,7 +2,7 @@ import unittest
 import random
 
 from shapely.geometry import Point
-from gcs.tools.flattner import InterpolatedFlattner
+from gcs.tools.flattener import InterpolatedFlattener
 from math import fabs
 
 from gcs import LatLng
@@ -38,7 +38,7 @@ class FlattenTestCase(unittest.TestCase):
         '''
         Takes an area and tests how well gis to cartesion interpolation works
         '''
-        view = InterpolatedFlattner(bounds)    
+        view = InterpolatedFlattener(bounds)    
     
         print 'Testing %s' % bounds
         
