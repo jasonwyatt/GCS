@@ -38,7 +38,7 @@ class FlattenTestCase(unittest.TestCase):
         '''
         Takes an area and tests how well gis to cartesion interpolation works
         '''
-        view = InterpolatedFlattener(bounds)    
+        view = InterpolatedFlattener.from_latlngboudns(bounds)    
     
         print 'Testing %s' % bounds
         
@@ -56,7 +56,7 @@ class FlattenTestCase(unittest.TestCase):
         center = bounds.center   
         
         def create_cart(geo):
-            return (geo, Point(view.gis_to_cart_point((geo.x, geo.y))))
+            return (geo, Point(view.gis_to_cart_point(Point(geo.x, geo.y))))
         
         NW = create_cart(nw)
         NE = create_cart(ne)
