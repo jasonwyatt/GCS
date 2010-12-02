@@ -100,16 +100,18 @@ def decode(point_str):
         coords.append(coord)
     
     #convert the 1 dimensional list to a 2 dimensional list and offsets to actual values
-    latlngs = []
-    prev = (0, 0)
+    points = []
+    prev_x = 0
+    prev_y = 0
     for i in xrange(0, len(coords) - 1, 2):
         if coords[i] == 0 and coords[i + 1] == 0:
             continue
         
-        prev = (prev[0] + coords[i + 1], prev[1] + coords[i])
-        latlngs.append(prev)
+        prev_x += coords[i + 1]
+        prev_y += coords[i]
+        points.append((prev_x, prev_y))
     
-    return latlngs    
+    return points    
 
 def decode_polyline(point_str):
     '''Decodes a polyline that has been encoded using Google's algorithm
