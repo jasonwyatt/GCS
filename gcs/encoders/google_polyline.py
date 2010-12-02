@@ -1,5 +1,10 @@
 
-from gcs import LatLng, Polyline
+from gcs import Polyline, LatLng
+
+try:
+    from shapely.geometry import LineString
+except:
+    pass
 
 def encode_polyline(polyline):
     '''
@@ -13,8 +18,8 @@ def encode_polyline(polyline):
     prev_lng = 0
     
     for latlng in polyline:
-        d_lat, prev_lat = _encode_value(latlng.lat, prev_lat)
-        d_lng, prev_lng = _encode_value(latlng.lng, prev_lng)        
+        d_lat, prev_lat = _encode_value(latlng.y, prev_lat)
+        d_lng, prev_lng = _encode_value(latlng.x, prev_lng)        
         
         result.append(d_lat)
         result.append(d_lng)
@@ -51,12 +56,14 @@ def _encode_value(value, prev):
     chunks = [chr(chunk + 63) for chunk in chunks]    
     
     return ''.join(chunks), prev
-    
-def decode_polyline(point_str):
+
+def decode(point_str):
     '''
     Decodes a polyline that has been encoded using Google's algorithm
     http://code.google.com/apis/maps/documentation/polylinealgorithm.html
-    '''
+    
+    This is a generic method that returns a list of (x, y) tuples
+    ''' or None
             
     #one coordinate offset is represented by 4 to 5 binary chunks
     coord_chunks = [[]]
@@ -94,12 +101,27 @@ def decode_polyline(point_str):
     
     #convert the 1 dimensional list to a 2 dimensional list and offsets to actual values
     latlngs = []
-    prev = LatLng(0, 0)
+    prev = (0, 0)
     for i in xrange(0, len(coords) - 1, 2):
         if coords[i] == 0 and coords[i + 1] == 0:
             continue
         
-        prev = LatLng(prev.lat + coords[i], prev.lng + coords[i + 1])        
+        prev = (prev[0] + coords[i + 1], prev[1] + coords[i])
         latlngs.append(prev)
     
-    return latlngs and Polyline(latlngs) or None
+    return latlngs    
+
+def decode_polyline(point_str):
+    '''Decodes a polyline that has been encoded using Google's algorithm
+    Returns a Polyline object
+    '''    
+    latlngs = [LatLng(l[1], l[0]) for l in decode(point_str)]
+    return None if len(latlngs) < 2 else Polyline(latlngs)
+
+def decode_linestring(point_str):
+    '''Decodes a polyline that has been encoded using Google's algorithm
+    Returns a LineString object
+    '''  
+    points = decode(point_str)
+    return None if len(points) < 2 else LineString(points)
+    
