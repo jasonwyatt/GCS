@@ -109,7 +109,8 @@ def decode(point_str):
         
         prev_x += coords[i + 1]
         prev_y += coords[i]
-        points.append((prev_x, prev_y))
+        #a round to 6 digits ensures that the floats are the same as when they were encoded
+        points.append((round(prev_x, 6), round(prev_y, 6)))
     
     return points    
 
