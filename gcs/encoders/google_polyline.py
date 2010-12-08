@@ -6,7 +6,7 @@ try:
 except:
     pass
 
-def encode_polyline(polyline):
+def encode_coords(coords):
     '''
     Encodes a polyline that has been encoded using Google's algorithm
     http://code.google.com/apis/maps/documentation/polylinealgorithm.html
@@ -17,14 +17,25 @@ def encode_polyline(polyline):
     prev_lat = 0
     prev_lng = 0
     
-    for latlng in polyline:
-        d_lat, prev_lat = _encode_value(latlng.y, prev_lat)
-        d_lng, prev_lng = _encode_value(latlng.x, prev_lng)        
+    for coord in coords:
+        d_lat, prev_lat = _encode_value(coord[1], prev_lat)
+        d_lng, prev_lng = _encode_value(coord[0], prev_lng)        
         
         result.append(d_lat)
         result.append(d_lng)
     
     return ''.join(result)
+    
+
+def encode_polyline(polyline):
+    '''
+    Encodes a polyline that has been encoded using Google's algorithm
+    http://code.google.com/apis/maps/documentation/polylinealgorithm.html
+    '''
+    return encode_coords([(ll.x, ll.y) for ll in polyline])
+    
+def encode_linestring(linestring):
+    return encode_coords(linestring.coords)
 
 def _encode_value(value, prev):
     #Step 2
