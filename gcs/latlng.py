@@ -17,6 +17,17 @@ def clean_float(f):
     return int(round(f * 10**SIGNIFICANT_DIGITS))
 
 class LatLng(object):
+        
+    @staticmethod
+    def from_coords(coords):
+        '''
+        Creates a polyline from a cartesian coordinate tuple
+        '''
+        try:
+            return LatLng(coords[1], coords[0])
+        except:
+            raise Exception("Unable to create a Polyline from given coordinates")
+    
     '''
     A latitude longitude (y, x)
     
