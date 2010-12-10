@@ -8,7 +8,7 @@ except:
 
 def encode_coords(coords):
     '''
-    Encodes a polyline that has been encoded using Google's algorithm
+    Encodes a polyline using Google's polyline algorithm
     http://code.google.com/apis/maps/documentation/polylinealgorithm.html
     '''
     
@@ -28,11 +28,7 @@ def encode_coords(coords):
     
 
 def encode_polyline(polyline):
-    '''
-    Encodes a polyline that has been encoded using Google's algorithm
-    http://code.google.com/apis/maps/documentation/polylinealgorithm.html
-    '''
-    return encode_coords([(ll.x, ll.y) for ll in polyline])
+    return encode_coords([ll.coords for ll in polyline])
     
 def encode_linestring(linestring):
     return encode_coords(linestring.coords)
