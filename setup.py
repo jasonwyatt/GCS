@@ -16,8 +16,6 @@ setup(name='Geographic coordinate system',
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          'geopy',          
-          'shapely'
-      ],
-      entry_points="",
+        'shapely',        
+      ]
       )
