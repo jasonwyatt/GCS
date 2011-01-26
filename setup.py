@@ -1,6 +1,10 @@
 from setuptools import setup, find_packages
+import re
 
-version = '0.2'
+try:
+    version = re.search('\((.*)\)', open('debian/changelog').readline()).group(1)
+except:
+    version = '1.0.0'
 
 setup(name                  = 'GCS',
       version               = version,
