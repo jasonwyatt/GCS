@@ -6,7 +6,7 @@ try:
 except:
     version = '1.0.0'
 
-setup(name                  = 'GCS',
+setup(name                  = 'gcs',
       version               = version,
       description           = "Geographic Coordinate System types and functions",      
       author                = 'TransLoc',
