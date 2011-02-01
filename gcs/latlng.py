@@ -128,10 +128,9 @@ class LatLng(object):
     
     @property
     def coords(self):
-        '''
-        Returns a tuple with cartesian coordinates (x,y)
-        '''
-        return (self._lng, self._lat)
+        '''Returns a tuple with cartesian coordinates ((x,y), )'''
+        
+        return ((self._lng, self._lat), )
     
     def buffer(self, distance):        
           
