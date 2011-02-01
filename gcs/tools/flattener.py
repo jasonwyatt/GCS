@@ -61,7 +61,7 @@ class GeoWindow():
         try:
             coords = point.coords
         except:
-            coords = point.__geo_interface__['coordinates']
+            coords = (point.__geo_interface__['coordinates'], )
 
         return Point(tuple(self.gis_to_cart_coords(coords)))
     
@@ -71,7 +71,7 @@ class GeoWindow():
         try:
             coords = point.coords
         except:
-            coords = point.__geo_interface__['coordinates']             
+            coords = (point.__geo_interface__['coordinates'], )             
         
         return Point(tuple(self.cart_to_gis_coords(coords)))
     
