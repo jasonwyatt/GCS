@@ -29,11 +29,21 @@ class GeoWindow():
     def initialize(self):
         pass
     
-    def gis_to_cart_coords(self, coords):
+    def gis_to_cart_coord(self, coords):
         raise Exception("Not Implemented")
     
+    def cart_to_gis_coord(self, coords):
+        raise Exception("Not Implemented")
+    
+    def gis_to_cart_coords(self, coords):
+        '''Converts latlng coords to cartesian coords'''
+        
+        return (self.gis_to_cart_coord(c) for c in coords)
+            
     def cart_to_gis_coords(self, coords):
-        raise Exception("Not Implemented")        
+        '''Converts cartesian coords to a latlng'''
+        
+        return (self.cart_to_gis_coord(c) for c in coords)      
     
     def gis_to_cart_shape(self, shape):
         '''Converts a GIS shape to a cartesian shape'''
@@ -52,28 +62,28 @@ class GeoWindow():
             coords = shape.coords
         except:
             coords = shape.__geo_interface__['coordinates']
-                    
+        
         return shape.__class__(tuple(self.cart_to_gis_coords(coords)))
     
     def gis_to_cart_point(self, point):
         '''Converts a lat,lng to a cartesian point'''
                 
         try:
-            coords = point.coords
+            coord = point.coords[0]
         except:
-            coords = (point.__geo_interface__['coordinates'], )
+            coord = (point.__geo_interface__['coordinates'], )
 
-        return Point(tuple(self.gis_to_cart_coords(coords)))
+        return Point(self.gis_to_cart_coord(coord))
     
     def cart_to_gis_point(self, point):
         '''Converts a cartesian point to a latlng'''    
         
         try:
-            coords = point.coords
+            coord = point.coords[0]
         except:
-            coords = (point.__geo_interface__['coordinates'], )             
+            coord = (point.__geo_interface__['coordinates'], )           
         
-        return Point(tuple(self.cart_to_gis_coords(coords)))
+        return Point(self.cart_to_gis_coord(coord))
     
 class InterpolatedFlattener(GeoWindow):
     
@@ -88,21 +98,23 @@ class InterpolatedFlattener(GeoWindow):
         self.translate_y = -self.min_lat 
         self.translate_x = -self.min_lng
     
-    def gis_to_cart_coords(self, coords):
-        '''Converts latlng coords to cartesian coords'''
+    
+    def gis_to_cart_coord(self, coord):
+        '''Converts a latlng coord to cartesian coord'''
         
-        for x, y in coords:
-            x = (x + self.translate_x) * self.scale_x
-            y = (y + self.translate_y) * self.scale_y
-            
-            yield (x, y)
-            
-    def cart_to_gis_coords(self, coords):
-        '''Converts cartesian coords to a latlng'''
+        x, y = coord
+        x = (x + self.translate_x) * self.scale_x
+        y = (y + self.translate_y) * self.scale_y
+        return (x, y)
+    
+    def cart_to_gis_coord(self, coord):
+        '''Converts a cartesian coords to a latlng'''
         
-        for x, y in coords:
-            x = (x / self.scale_x) - self.translate_x
-            y = (y / self.scale_y) - self.translate_y
+        x, y = coord
+        x = (x / self.scale_x) - self.translate_x
+        y = (y / self.scale_y) - self.translate_y
+        return (x, y)
+        
+        
             
-            yield (x, y)
     
