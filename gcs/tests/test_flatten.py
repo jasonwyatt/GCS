@@ -38,7 +38,7 @@ class FlattenTestCase(unittest.TestCase):
         '''
         Takes an area and tests how well gis to cartesion interpolation works
         '''
-        view = InterpolatedFlattener.from_latlngboudns(bounds)    
+        view = InterpolatedFlattener.from_latlngbounds(bounds)    
     
         print 'Testing %s' % bounds
         

@@ -1,4 +1,4 @@
-from shapely.geometry import LineString, Point
+from shapely.geometry import Point
 
 from gcs.arcdegrees import wgs84
         
@@ -16,45 +16,64 @@ class GeoWindow():
         self.initialize()
     
     @classmethod    
-    def from_tuple(c, bounds):
-        '''
-        Convert from a shapely bounds (min_x, min_y, max_x, max_y)
-        '''
-        return c(bounds[1], bounds[0], bounds[3], bounds[2])
+    def from_tuple(cls, bounds):
+        '''Convert from a shapely bounds (min_x, min_y, max_x, max_y)'''
+        
+        return cls(bounds[1], bounds[0], bounds[3], bounds[2])
     
     @classmethod
-    def from_latlngboudns(c, bounds):
-        return c(bounds.south, bounds.west, bounds.north, bounds.east)
+    def from_latlngbounds(cls, bounds):
+        
+        return cls(bounds.south, bounds.west, bounds.north, bounds.east)
 
     def initialize(self):
         pass
     
+    def gis_to_cart_coords(self, coords):
+        raise Exception("Not Implemented")
+    
+    def cart_to_gis_coords(self, coords):
+        raise Exception("Not Implemented")        
+    
     def gis_to_cart_shape(self, shape):
-        '''
-        Converts a GIS shape to a cartesian shape 
-        '''
+        '''Converts a GIS shape to a cartesian shape'''
         
-        points = shape.__geo_interface__['coordinates']
-        return LineString(tuple(self.gis_to_cart_point(Point(p)).coords[0] for p in points))
+        try:
+            coords = shape.coords
+        except:
+            coords = shape.__geo_interface__['coordinates']
+     
+        return shape.__class__(tuple(self.gis_to_cart_coords(coords)))
         
     def cart_to_gis_shape(self, shape):
-        '''
-        Converts a cartesian shape to a GIS one
-        '''
-        points = shape.__geo_interface__['coordinates']
-        return LineString(tuple(self.cart_to_gis_point(Point(p)).coords[0] for p in points))
+        '''Converts a cartesian shape to a GIS one'''
+        
+        try:
+            coords = shape.coords
+        except:
+            coords = shape.__geo_interface__['coordinates']
+                    
+        return shape.__class__(tuple(self.cart_to_gis_coords(coords)))
     
     def gis_to_cart_point(self, point):
-        '''
-        Converts a lat,lng to a cartesian point
-        '''        
-        return point
+        '''Converts a lat,lng to a cartesian point'''
+                
+        try:
+            coords = point.coords
+        except:
+            coords = point.__geo_interface__['coordinates']
+
+        return Point(tuple(self.gis_to_cart_coords(coords)))
     
     def cart_to_gis_point(self, point):
-        '''
-        Converts a cartesian point to a latlng
-        '''    
-        return point
+        '''Converts a cartesian point to a latlng'''    
+        
+        try:
+            coords = point.coords
+        except:
+            coords = point.__geo_interface__['coordinates']             
+        
+        return Point(tuple(self.cart_to_gis_coords(coords)))
     
 class InterpolatedFlattener(GeoWindow):
     
@@ -63,28 +82,27 @@ class InterpolatedFlattener(GeoWindow):
         #find the middle latitude
         self.mid_lat = (self.max_lat + self.min_lat) / 2.0
         
-        self.geo_ratio_y,  self.geo_ratio_x = wgs84.length_at(self.mid_lat)
+        self.scale_y,  self.scale_x = wgs84.length_at(self.mid_lat)
         
         #keeps numbers small, not really needed
-        self.geo_min_y = self.min_lat 
-        self.geo_min_x = self.min_lng                
+        self.translate_y = -self.min_lat 
+        self.translate_x = -self.min_lng
     
-    def gis_to_cart_point(self, point):
-        '''
-        Converts a lat,lng to a cartesian point
-        '''
-        x = (point.x - self.geo_min_x) * self.geo_ratio_x
-        y = (point.y - self.geo_min_y) * self.geo_ratio_y        
+    def gis_to_cart_coords(self, coords):
+        '''Converts latlng coords to cartesian coords'''
         
-        return Point(x, y)
-    
-    def cart_to_gis_point(self, point):
-        '''
-        Converts a cartesian point to a latlng
-        '''    
+        for x, y in coords:
+            x = (x + self.translate_x) * self.scale_x
+            y = (y + self.translate_y) * self.scale_y
+            
+            yield (x, y)
+            
+    def cart_to_gis_coords(self, coords):
+        '''Converts cartesian coords to a latlng'''
         
-        x = (point.x / self.geo_ratio_x) + self.geo_min_x
-        y = (point.y / self.geo_ratio_y) + self.geo_min_y
-        
-        return Point(x, y)
+        for x, y in coords:
+            x = (x / self.scale_x) - self.translate_x
+            y = (y / self.scale_y) - self.translate_y
+            
+            yield (x, y)
     
