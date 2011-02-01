@@ -92,12 +92,11 @@ class InterpolatedFlattener(GeoWindow):
         #find the middle latitude
         self.mid_lat = (self.max_lat + self.min_lat) / 2.0
         
-        self.scale_y,  self.scale_x = wgs84.length_at(self.mid_lat)
+        self.scale_y, self.scale_x = wgs84.length_at(self.mid_lat)
         
         #keeps numbers small, not really needed
-        self.translate_y = -self.min_lat 
         self.translate_x = -self.min_lng
-    
+        self.translate_y = -self.min_lat 
     
     def gis_to_cart_coord(self, coord):
         '''Converts a latlng coord to cartesian coord'''
@@ -115,6 +114,3 @@ class InterpolatedFlattener(GeoWindow):
         y = (y / self.scale_y) - self.translate_y
         return (x, y)
         
-        
-            
-    
