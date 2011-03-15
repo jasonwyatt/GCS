@@ -28,7 +28,7 @@ def encode_coords(coords):
     
 
 def encode_polyline(polyline):
-    return encode_coords([ll.coords for ll in polyline])
+    return encode_coords(ll.coords for ll in polyline)
     
 def encode_linestring(linestring):
     return encode_coords(linestring.coords)
@@ -45,7 +45,7 @@ def _encode_value(value, prev):
     
     #Step - invert the encoding if negative
     if negative:
-        value = ~value #
+        value = ~value
         
     #Step 6-7 - split into 5 bit chunks and reverse the order of the chunks
     chunks = []
@@ -124,7 +124,8 @@ def decode(point_str):
 def decode_polyline(point_str):
     '''Decodes a polyline that has been encoded using Google's algorithm
     Returns a Polyline object
-    '''    
+    '''  
+      
     latlngs = [LatLng(l[1], l[0]) for l in decode(point_str)]
     return None if len(latlngs) < 2 else Polyline(latlngs)
 
@@ -132,6 +133,7 @@ def decode_linestring(point_str):
     '''Decodes a polyline that has been encoded using Google's algorithm
     Returns a LineString object
     '''  
+    
     points = decode(point_str)
     return None if len(points) < 2 else LineString(points)
     
