@@ -1,3 +1,9 @@
+gcs (9429) unstable; urgency=low
+
+  * Updated encoders.
+
+ -- David Lathrop <david@transloc.com>  Sun, 03 Apr 2011 20:53:00 -0500
+
 gcs (1.0.1) unstable; urgency=low
 
   * Updated flattener so that it doesn't create intermediary objects. Much
