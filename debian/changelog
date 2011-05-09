@@ -1,3 +1,12 @@
+gcs (10809) unstable; urgency=low
+
+  * Removed unused code. (nathan)
+  * Ignored build directories. (jason)
+  * Added a function to calculate the distance between two points. (nathan)
+  * Always re-compiling python modules after installation. (igor)
+
+ -- Igor Partola <igor@transloc.com>  Mon, 09 May 2011 15:40:33 -0500
+
 gcs (9797) unstable; urgency=low
 
   * Updating gcs changelog. (david)
