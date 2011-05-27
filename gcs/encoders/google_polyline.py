@@ -1,4 +1,3 @@
-
 from gcs import Polyline, LatLng
 
 try:
@@ -17,14 +16,18 @@ def encode_coords(coords):
     prev_lat = 0
     prev_lng = 0
     
-    for coord in coords:
-        d_lat, prev_lat = _encode_value(coord[1], prev_lat)
-        d_lng, prev_lng = _encode_value(coord[0], prev_lng)        
+    for x, y in coords:        
+        lat, lng = int(y * 1e5), int(x * 1e5)
+        
+        d_lat = _encode_value(lat - prev_lat)
+        d_lng = _encode_value(lng - prev_lng)        
+        
+        prev_lat, prev_lng = lat, lng
         
         result.append(d_lat)
         result.append(d_lng)
     
-    return ''.join(result)
+    return ''.join(c for r in result for c in r)
     
 
 def encode_polyline(polyline):
@@ -33,36 +36,24 @@ def encode_polyline(polyline):
 def encode_linestring(linestring):
     return encode_coords(linestring.coords)
 
-def _encode_value(value, prev):
-    #Step 2
-    value = int(value * 1e5)
-    value, prev = value - prev, value
-    
-    negative = (value < 0)
-    
-    #Step 4
-    value <<= 1
-    
-    #Step - invert the encoding if negative
-    if negative:
-        value = ~value
-        
-    #Step 6-7 - split into 5 bit chunks and reverse the order of the chunks
-    chunks = []
+def _split_into_chunks(value):
     while value >= 32: #2^5, while there are at least 5 bits
-        chunks.append(value & 31) # 2^5-1, zeros out all the bits other than the first five
+        
+        #first & with 2^5-1, zeros out all the bits other than the first five
+        #then OR with 0x20 if another bit chunk follows
+        yield (value & 31) | 0x20 
         value >>= 5
+    yield value
+
+def _encode_value(value):
+    #Step 2 & 4
+    value = ~(value << 1) if value < 0 else (value << 1)
     
-    #Step 8 - OR each value with 0x20 if another bit chunk follows
-    chunks = [chunk | 0x20 for chunk in chunks]
-    
-    #Complete step 6
-    chunks.append(value) #append the last 5 bits
+    #Step 5 - 8
+    chunks = _split_into_chunks(value)
     
     #Step 9-10
-    chunks = [chr(chunk + 63) for chunk in chunks]    
-    
-    return ''.join(chunks), prev
+    return (chr(chunk + 63) for chunk in chunks)
 
 def decode(point_str):
     '''
