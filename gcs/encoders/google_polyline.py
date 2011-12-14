@@ -1,3 +1,9 @@
+'''google_polyline
+
+Provides utility functions for encoding and decoding linestrings and polylines 
+using the google encoded polyline algorithm.
+'''
+
 from gcs import Polyline, LatLng
 
 try:
@@ -6,9 +12,17 @@ except:
     pass
 
 def encode_coords(coords):
-    '''
-    Encodes a polyline using Google's polyline algorithm
-    http://code.google.com/apis/maps/documentation/polylinealgorithm.html
+    '''Encodes a polyline using Google's polyline algorithm
+    
+    See http://code.google.com/apis/maps/documentation/polylinealgorithm.html 
+    for more information.
+    
+    :param coords: Coordinates to transform (list of tuples in order: latitude, 
+    longitude).
+    :type coords: list
+    :returns: Google-encoded polyline string.
+    :rtype: string
+    
     '''
     
     result = []
@@ -31,9 +45,26 @@ def encode_coords(coords):
     
 
 def encode_polyline(polyline):
+    '''Encodes a Polyline object using the Google encoded polyline algorithm.
+    
+    :param polyline: Polyline to encode.
+    :type polyline: Polyline
+    :returns: Encoded polyline string.
+    :rtype: String
+    
+    '''
     return encode_coords(ll.coords for ll in polyline)
     
 def encode_linestring(linestring):
+    '''Encodes a shapely LineString object with the google encoded polyline 
+    algorithm.
+    
+    :param linestring: LineString to enncode.
+    :type linestring: LineString
+    :returns: Encoded polyline string.
+    :rtype: String
+    
+    '''
     return encode_coords(linestring.coords)
 
 def _split_into_chunks(value):
@@ -56,12 +87,18 @@ def _encode_value(value):
     return (chr(chunk + 63) for chunk in chunks)
 
 def decode(point_str):
-    '''
-    Decodes a polyline that has been encoded using Google's algorithm
+    '''Decodes a polyline that has been encoded using Google's algorithm
     http://code.google.com/apis/maps/documentation/polylinealgorithm.html
     
-    This is a generic method that returns a list of (x, y) tuples
-    ''' or None
+    This is a generic method that returns a list of (latitude, longitude) 
+    tuples.
+    
+    :param point_str: Encoded polyline string.
+    :type point_str: string
+    :returns: List of 2-tuples where each tuple is (latitude, longitude)
+    :rtype: list
+    
+    '''
             
     #one coordinate offset is represented by 4 to 5 binary chunks
     coord_chunks = [[]]
@@ -113,18 +150,32 @@ def decode(point_str):
     return points    
 
 def decode_polyline(point_str):
-    '''Decodes a polyline that has been encoded using Google's algorithm
-    Returns a Polyline object
+    '''Decodes a polyline that has been encoded using Google's algorithm and
+    returns a Polyline object.
+    
+    :param point_str: Encoded polyline string.
+    :type point_str: string
+    :returns: Decoded polyline
+    :rtype: Polyline
+    
     '''  
       
     latlngs = [LatLng(l[1], l[0]) for l in decode(point_str)]
     return None if len(latlngs) < 2 else Polyline(latlngs)
 
 def decode_linestring(point_str):
-    '''Decodes a polyline that has been encoded using Google's algorithm
-    Returns a LineString object
+    '''Decodes a polyline that has been encoded using Google's algorithm and
+    returns a LineString object.
+    
+    :param point_str: Encoded polyline string.
+    :type point_str: string
+    :returns: Decoded polyline
+    :rtype: LineString
+    
     '''  
     
     points = decode(point_str)
     return None if len(points) < 2 else LineString(points)
+    
+__all__ = ['decode', 'decode_polyline', 'encode_polyline', 'decode_linestring', 'encode_linestring', 'encode_coords']
     

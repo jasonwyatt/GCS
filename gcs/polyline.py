@@ -1,3 +1,9 @@
+'''polyline
+
+Provides the Polyline, PolylineSnap, and SnapOptions classes, as well as the 
+from_linestring utility function.
+'''
+
 from itertools import izip
 
 from math import radians
@@ -555,3 +561,6 @@ class Polyline(object):
             [path.reverse() for path in result]
             
         return [Polyline(path) for path in result]
+
+
+__all__ = ['from_linestring', 'Polyline', 'PolylineSnap', 'SnapOptions']

@@ -1,9 +1,12 @@
+'''latlngbounds
+
+Provides the LatLngBounds class.'''
+
 from latlng import LatLng
 from shapely.geometry import Polygon
 
 class LatLngBounds(object):
-    '''
-    A isosceles trapezoid
+    '''An isosceles trapezoid.
     '''
     
     def __init__(self, sw, ne=None): 
@@ -108,3 +111,5 @@ class LatLngBounds(object):
                         (self.east, self.south),
                         origin
                         ))
+
+__all__ = ['LatLngBounds']

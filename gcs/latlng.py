@@ -1,3 +1,8 @@
+'''latlng
+
+Provides the LatLng class.
+'''
+
 from math import sin, cos, sqrt, asin, atan2, radians, degrees, pi
 
 from constants import RADIUS_EARTH_M
@@ -17,30 +22,41 @@ def clean_float(f):
     return int(round(f * 10**SIGNIFICANT_DIGITS))
 
 class LatLng(object):
-        
-    @staticmethod
-    def from_coords(coords):
-        '''
-        Creates a polyline from a cartesian coordinate tuple
-        '''
-        try:
-            return LatLng(coords[1], coords[0])
-        except:
-            raise Exception("Unable to create a Polyline from given coordinates")
+    '''A latitude longitude (y, x)
     
-    '''
-    A latitude longitude (y, x)
-    
-    Create a LatLng three different ways
+    Create a LatLng two different ways
     >>> point1 = LatLng(35, -78)    
     >>> point2 = LatLng((35, -78))
         
     Test that they are the same
     >>> point1 == point2
     True
+    
     '''
+        
+    @staticmethod
+    def from_coords(coords):
+        '''Creates a polyline from a cartesian coordinate tuple.
+        
+        :param coords: Tuple containing (x, y)
+        :type coords: tuple
+        :returns: LatLng from the cartesian coordinates.
+        :rtype: LatLng
+        
+        '''
+        try:
+            return LatLng(coords[1], coords[0])
+        except:
+            raise Exception("Unable to create a Polyline from given coordinates")
+    
+    
     
     def __init__(self, arg0, arg1=None):
+        '''Instantiates a LatLng object.
+        
+        :param arg0: If arg1 is None, tuple containing (lat, lng). Else: number (lat)
+        :param arg1: If specified, the longitude.
+        '''
         if arg1 is None:
             try:
                 #unpack arg0
@@ -59,12 +75,31 @@ class LatLng(object):
         self._lng = self._lng_clean * CLEAN_INT_TO_FLOAT
             
     def __repr__(self):
+        '''Builds a string representation of the object.
+        
+        :returns: "LatLng(latitude, longitude)"
+        :rtype: string
+        
+        '''
         return 'LatLng(%.10f, %.10f)' % (self.lat, self.lng)
     
     def __unicode__(self):
+        '''Builds a unicode version of the object.
+        
+        :returns: "*latitude*, *longitude*"
+        :rtype: string
+        
+        '''
         return '%f, %f' % (self.lat, self.lng)
     
     def __eq__(self, other):
+        '''Determines if the provided other object is equal to this LatLng
+        
+        :param other: Other object.
+        :returns: Whether or not this object is equal to the other object.
+        :rtype: bool
+        
+        '''
         if other is None:            
             return False
         
@@ -77,53 +112,82 @@ class LatLng(object):
         
         return self._lat_clean == clean_float(other.lat) and self._lng_clean == clean_float(other.lat)
 
-    def __ne__(self, other):        
+    def __ne__(self, other):  
+        '''Determines if the provided other object is not equal to this LatLng
+        
+        :param other: Other object.
+        :returns: Whether or not this object is not-equal to the other object.
+        :rtype: bool
+        
+        '''      
         return not self.__eq__(other)
     
     def __hash__(self):
+        '''Determines a hash value for the LatLng
+        
+        :returns: Hash value for this LatLng
+        :rtype: number
+        
+        '''
         return (self._lat_clean, self._lng_clean).__hash__() 
     
     def __iter__(self):
+        '''Iterates over the latitude and longitude of the LatLng as if it were 
+        a tuple.
+        
+        '''
         yield self._lat
         yield self._lng
     
     @property
     def __geo_interface__(self):
+        '''Provides a GeoJSON like interface.
         '''
-        Provides a GeoJSON like interface
-        '''
-        return {'type': 'Point', 'coordinates': (self._lng, self._lat)}
+        return {'type': 'Point', 'coordinates': (self._lng, self._lat) }
     
     @property
-    def point(self):        
+    def point(self):
+        '''Provides a shapely Point representation of the LatLng
+        
+        :returns: Shapely point representation.
+        :rtype: Point
+        
+        '''
         return Point(self._lng, self._lat)
     
     @property
     def lat(self):
+        '''Latitude of the LatLng'''
         return self._lat
     
     @property
     def lng(self):
+        '''Longitude of the LatLng'''
         return self._lng
     
     @property
     def lat_rad(self):
+        '''Latitude, in radians, of the LatLng'''
         return radians(self._lat)
         
     @property
     def lng_rad(self):
+        '''Longitude, in radians, of the LatLng'''
         return radians(self._lng)
     
     @property
     def tuple(self):
+        '''Provides a tuple containing (latitude, longitude)'''
         return (self._lat, self._lng)
     
     @property
     def x(self):
+        '''The x-coordinate (longitude)'''
         return self._lng
     
     @property
     def y(self):
+        '''The y-coordinate (latitude)'''
         return self._lat
     
     @property
@@ -133,10 +197,16 @@ class LatLng(object):
         return ((self._lng, self._lat), )
     
     def buffer(self, distance):        
-          
-        '''
-        Returns a "square" centered at the current point that is at least 2x distance by 2x distance
-        Distance is in meters
+        '''Returns a "square" centered at the current point that is at least 2x 
+        distance by 2x distance.
+        
+        Distance is in meters.
+        
+        :param distance: Distance away from the LatLng.
+        :type distance: number
+        :returns: LatLngBounds square centered at the LatLng that is 
+        2 * distance on each side.
+        
         '''
         
         from latlngbounds import LatLngBounds
@@ -157,8 +227,16 @@ class LatLng(object):
         return LatLngBounds(LatLng(min_lat, min_lng), LatLng(max_lat, max_lng))
         
     def angle_to(self, other, default=0.0):
-        '''
-        Calculates the angle from this point to another point
+        '''Calculates the angle from this point to another point, from the 
+        center of the earth.
+        
+        :param other: Other LatLng
+        :type other: LatLng
+        :param default: If the other point is identical to the current point, 
+        return this value.
+        :returns: Angle between the two points from the center of the earth.
+        :rtype: number
+        
         '''
         
         if self == other:
@@ -173,8 +251,14 @@ class LatLng(object):
         return atan2(y, x) % (2 * pi)
 
     def distance_to(self, other):
-        '''
-        Calculates the distance from this point to another point in meters using the haversine formula
+        '''Calculates the distance from this point to another point in meters 
+        using the haversine formula.
+        
+        :param other: Other point.
+        :type other: LatLng
+        :returns: Distance between the two points, in meters.
+        :rtype: number
+        
         '''
                 
         if self == other:
@@ -191,8 +275,17 @@ class LatLng(object):
 
     
     def apply_bearing_and_distance(self, bearing, distance):
-        '''
-        Adds a bearing and a distance following the great circle art to the current point
+        '''Adds a bearing and a distance following the great circle art to the 
+        current point.
+        
+        :param bearing: Bearing from the current point.
+        :type bearing: number
+        :param distance: Distance from the current point.
+        :type distance: number
+        :returns: Point located at the supplied distance along the given 
+        bearing from the current point.
+        :rtype: LatLng
+        
         '''
         
         distance /= RADIUS_EARTH_M
@@ -208,4 +301,6 @@ class LatLng(object):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()        
+    doctest.testmod()  
+    
+__all__ = ['LatLng']      

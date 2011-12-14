@@ -1,3 +1,8 @@
+'''line
+
+Provides the GeoLine and GeoLineSnap classes
+'''
+
 from math import sin, cos, pi
 
 class GeoLineSnap():
@@ -55,8 +60,7 @@ class GeoLine(object):
     
     @property
     def polyline(self):
-        '''
-        Converts the GeoLine into a Polyline
+        '''Converts the GeoLine into a Polyline
         '''
         from . import Polyline
         return Polyline([self.start, self.end])
@@ -66,8 +70,8 @@ class GeoLine(object):
         return (self._start, self._end)
     
     def _clean_angle(self, angle):
-        '''
-        Ensures that an angle is always between 0 and pi
+        '''Ensures that an angle is always between 0 and pi
+        
         '''        
         angle = abs(angle) % (2 * pi)
         
@@ -77,8 +81,8 @@ class GeoLine(object):
 
     
     def snap_point(self, point, max_distance, snap_beyond=True):
-        '''
-        Finds the closest point on line, the distance to that point from the previous point and how far
+        '''Finds the closest point on line, the distance to that point from the 
+        previous point and how far
         (snap latlng, distance from line, distance from start 
         If snap_beyond is true then points that are beyond the last points will be snapped
         '''
@@ -106,7 +110,9 @@ class GeoLine(object):
         return None
     
     def closest_point(self, target):
-        "Returns the point on the line closest to target."
+        '''Returns the point on the line closest to target.
+        
+        '''
         from constants import RADIUS_EARTH_KM
         linesnap = self.snap_point(target, RADIUS_EARTH_KM)
         if linesnap is None or target.distance_to(self.start) < linesnap.distance_from_initial:
@@ -115,8 +121,9 @@ class GeoLine(object):
             return linesnap.point
     
     def angle_to(self, other):
-        '''
-        Calculates the smallest angle between two lines which have to points in common
+        '''Calculates the smallest angle between two lines which have to points 
+        in common
+        
         '''
         
         if not self.is_connected_with(other):
@@ -125,8 +132,8 @@ class GeoLine(object):
         return self._clean_angle(self.angle - other.angle)                 
     
     def is_connected_with(self, other):
-        '''
-        Tests whether two GeoLines share an endpoint
+        '''Tests whether two GeoLines share an endpoint
+        
         '''
         if self.start == other.start or self.end == other.end:
             return True
@@ -135,10 +142,11 @@ class GeoLine(object):
         return False
     
     def delta_angle(self, other):
-        '''
-        Finds the change in direction in radians between the lines.
+        '''Finds the change in direction in radians between the lines.
+        
         More or less 180 - angle_to(), but not quite. Very useful for finding 
         abrupt changes in direction.
+        
         '''
         assert self.end == other.start, "Lines must be connected to measure angle delta."
         
@@ -147,8 +155,10 @@ class GeoLine(object):
         return angle
     
     def point_at_distance(self, new_length):
-        '''
-        Returns the point at a given distance from the start
+        '''Returns the point at a given distance from the start
+        
         '''
         return self._start.apply_bearing_and_distance(self.angle, new_length)
+        
+__all__ = ['GeoLineSnap', 'GeoLine']
     
