@@ -1,3 +1,3 @@
 # Geograpic Coordinate System (GCS)
 
-Geographic Coordinate System types and functions
+Set of tools for Geographic Coordinate System types and functions
