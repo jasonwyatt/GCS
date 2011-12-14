@@ -18,13 +18,12 @@ def distance(a, b):
     >>> distance(x, y)
     111198.41730306287
     
-    @type   a: LatLng
-    @param  a: First coordinate.
-    @type   b: LatLng
-    @param  b: Second coordinate.
-    
-    @rtype: number
-    @returns: A number, theistance between the two coordinates (in meters) via the Haversine Formula.
+    :param a: First coordinate.
+    :type a: LatLng
+    :param b: Second coordinate.
+    :type b: LatLng
+    :returns: A number, theistance between the two coordinates (in meters) via the Haversine Formula.
+    :rtype: number
     '''
             
     if a == b:
