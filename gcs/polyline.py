@@ -37,16 +37,22 @@ class SnapOptions():
             
 
 class Polyline(object):
-    '''
-    A ordered list of LatLngs that form a shape
+    '''A ordered list of LatLngs that form a shape
     
     Create a Polyline two different ways
     >>> poly1 = Polyline(LatLng(35, -78), LatLng(36, -78))    
     >>> poly2 = Polyline([LatLng(35, -78), LatLng(36, -78)])
     >>> poly3 = Polyline([(35, -78), (36, -78)])
+    
     '''
     
-    def __init__(self, *args):        
+    def __init__(self, *args):  
+        '''Creates a new instance of a Polyline
+        
+        :param args: varargs for the polyline. Each one shoud be either a 
+        LatLng or a tuple containing (latitude, longitude)
+        
+        '''      
         if len(args) == 1:
             args = args[0]        
         
@@ -66,41 +72,105 @@ class Polyline(object):
         self.__on_shape_changed()
     
     def __iter__(self):
+        '''Iterator that iterates over the points in the Polyline
+        
+        '''
         for latlng in self._points:
             yield latlng
     
     def __eq__(self, other):
+        '''Determines whether or not this polyline is equal to the supplied 
+        object.
+        
+        :param other: Other object
+        :returns: Whether or not this Polyline is equal to the supplied object.
+        :rtype: bool
+        
+        '''
         if not other:
             return False
         
         return len(other) == len(self) and all(p == s for p, s in izip(self, other))        
     
     def __ne__(self, other):
+        '''Determines whether or not this Polyline is not-equal to the supplied 
+        object.
+        
+        :param other: Other object
+        :returns: Whether or not this Polyline is not-equal to the supplied 
+        object.
+        :rtype: bool
+        
+        '''
         return not self.__eq__(other)
     
     def __copy__(self):
+        '''Creates a copy of the Polyline
+        
+        :returns: A copy of this Polyline.
+        :rtype: Polyline
+        
+        '''
         return Polyline(self._points)
     
     def __len__(self):
+        '''Gets the length of the Polyline (the number of points in the 
+        Polyline)
+        
+        :returns: Number of points in the Polyline
+        :rtype: number
+        
+        '''
         return len(self._points)
         
     def __getitem__(self, index):
+        '''Gets a particular point at a supplied index along the Polyline
+        
+        :param index: Index of the point along the Polyline
+        :type index: number
+        :returns: Point along the Polyline at the specified index.
+        :rtype: LatLng
+        
+        '''
         return self._points[index]
 
     def __setitem__(self, index, value):
+        '''Sets the point at the specified index to the specified point 
+        (LatLng).
+        
+        :param index: Index along the Polyline to change the point for.
+        :type index: number
+        :param value: New point for the specified index.
+        :type value: LatLng
+        
+        '''
         if not value.__class__ is LatLng:
-            raise Exception("Item must be a latlng")
+            raise Exception("Item must be a LatLng")
         
         self._points[index] = value
         self.__on_shape_changed()
     
     def __repr__(self):        
+        '''Creates a human-readable string containing the information about the 
+        Polyline.
+        
+        :returns: Human-readable representation of the Polyline
+        :rtype: string
+        
+        '''
+        
         return 'Polyline(%s)' % ','.join(repr(point) for point in self)
     
     @staticmethod
     def from_coords(coords):
-        '''
-        Creates a polyline from a list/tuple of cartesian coordinates
+        '''Creates a polyline from a list/tuple of cartesian coordinates.
+        
+        :param coords: List of coordinates, where each coordinate is a 
+        tuple/list with x/y coordinates (longitude, latitude)
+        :type coords: list
+        :returns: Polyline constructed from supplied coordinates.
+        :rtype: Polyline
+        
         '''
         try:
             return Polyline(LatLng(p[1], p[0]) for p in coords)
@@ -109,6 +179,16 @@ class Polyline(object):
         
     @staticmethod
     def concat_multiple(polys):
+        '''Concatenates multiple Polylines into a single Polyline
+        
+        :param polys: List of Polyline objects
+        :type polys: list
+        :returns: New Polyline that consists of all of the points in all of the 
+        supplied Polylines concatenated together.
+        :rtype: Polyline
+        
+        '''
+        
         if not polys:
             return None
         
@@ -116,6 +196,13 @@ class Polyline(object):
     
     @staticmethod    
     def clean_points(points):
+        '''Generator: turns a list of points into LatLng objects. The list can 
+        contain either tuples/lists or LatLng objects.
+        
+        :param points: List of points
+        :type points: list
+        
+        '''
         prev = None
         for point in points:
             if point == prev:
@@ -127,29 +214,64 @@ class Polyline(object):
     
     @property
     def __geo_interface__(self):
-        '''
-        Provides a GeoJSON like interface useful with Shapely
+        '''Provides a GeoJSON like interface useful with Shapely.
+        
+        :returns: Dictionary containing the object type, and a list of 
+        coordinates.
+        :rtype: dict
+        
         '''
         return {'type': 'LineString', 'coordinates': tuple(self.coords)}
     
     def get_first(self):
+        '''Gets the first point in the Polyline
+        
+        :returns: First point in the Polyline
+        :rtype: LatLng
+        
+        '''
         return self[0]
         
     def set_first(self, latlng):    
+        '''Sets the first point in the Polyline to the supplied LatLng.
+        
+        :param latlng: New value for the first point.
+        :type latlng: LatLng
+        
+        '''
         self[0] = latlng
     
     first = property(get_first, set_first)
     
     def get_last(self):
+        '''Gets the last point in the Polyline
+        
+        :returns: Last point in the Polyline
+        :rtype: LatLng
+        
+        '''
         return self[-1]
     
     def set_last(self, latlng):
+        '''Sets the last point in the Polyline
+        
+        :param latlng: New value for the last point.
+        :type latlng: LatLng
+        
+        '''
+        
         self[-1] = latlng
     
     last = property(get_last, set_last)
     
     @property
     def bounds(self):
+        '''Property to retrieve the bounding box of the Polyline
+        
+        :returns: Bounding box of the Polyline
+        :rtype: LatLngBounds
+        
+        '''
         if not self._bounds:
             result = None
             for latlng in self:
@@ -163,10 +285,16 @@ class Polyline(object):
     
     @property
     def lines(self):
-        '''
-        Returns a tuple containing all the pairs of points in the polyline.
+        '''Returns a tuple containing all the pairs of points in the polyline.
+        
         For a polyline with n points this should be n - 1
-        If a polyline consists of points A, B, & C this would yield [GeoLine(A, B), GeoLine(B, C), GeoLine(B, C)]
+        If a polyline consists of points A, B, & C this would yield 
+            [GeoLine(A, B), GeoLine(B, C), GeoLine(B, C)]
+            
+        :returns: Tuple containing all pairs of points in the polyline as 
+        GeoLine objects.
+        :rtype: tuple
+        
         '''
         
         if not self._lines:
@@ -175,10 +303,11 @@ class Polyline(object):
             
     @property
     def angles(self):
-        '''
-        Yields all of the angles that exist in the polyline as a list of tuples
+        '''Yields all of the angles that exist in the polyline as a list of tuples
+        
         For a polyline with n points this should be n - 2
         If a polyline consists of points A, B, & C this would return (AB, BC)
+        
         '''
         prev = None
         for cur in self.lines:
@@ -188,6 +317,10 @@ class Polyline(object):
             
     @property
     def lines_reversed(self):
+        '''Generator that yields the GeoLines that make up the Polyline's line 
+        segments, in reverse order.
+        
+        '''
         i = len(self) - 1
         while i > 0:            
             yield GeoLine(self[i],  self[i-1])
@@ -195,15 +328,21 @@ class Polyline(object):
                
     @property
     def coords(self):
-        '''
-        Provides a cartesian set of coordinates for use with GEOS
+        '''Provides a cartesian set of coordinates for use with GEOS.
+        
+        :returns: Tuple containing the points along the Polyline.
+        :rtype: tuple
+        
         '''
         return (pt.coords for pt in self._points)
     
     @property
     def distance(self):
-        '''
-        Returns the total length of the Polyline in KM
+        '''Returns the total length of the Polyline in KM.
+        
+        :returns: Total length of the polyline, in Kilometers.
+        :rtype: number
+        
         '''
         if self._distance is None:
             self._distance = sum(line.distance for line in self.lines)
@@ -212,42 +351,88 @@ class Polyline(object):
     
     @property
     def inverse(self):
-            return Polyline(reversed(self._points))
+        '''Returns the polyline in reverse.
+        
+        :returns: Reversed polyline
+        :rtype: Polyline
+        
+        '''
+        return Polyline(reversed(self._points))
     
     @property
     def points(self):
+        '''Returns a tuple containing all of the points in the Polyline
+        
+        :returns: Tuple containing each point in the Polyline
+        :rtype: Polyline
+        
+        '''
         return tuple(pt for pt in self)
     
     def __on_shape_changed(self):
-        '''
-        Called when the shape of the polyline has been altered
-        Clears things that are cached
+        '''Called when the shape of the polyline has been altered.
+        
+        Clears things that are cached.
+        
         '''
         self._bounds = None
         self._distance = None
         self._lines = None
     
     def append(self, value):
-        '''
-        Adds a single point to the end of this polyline
+        '''Adds a single point to the end of this polyline.
+        
+        >>> p = Polyline()
+        >>> ll = LatLng(35, -80)
+        >>> p.append(ll)
+        
+        :param value: New point to append to the Polyline.
+        :type value: LatLng
+        
         '''        
         self._points.append(value)
         self.__on_shape_changed()
         
     def prepend(self, value):
-        '''
-        Adds a single point to the beginning of this polyline
+        '''Adds a single point to the beginning of this polyline.
+        
+        >>> p = Polyline(LatLng(34, -80), LatLng(34.5, -80))
+        >>> ll = LatLng(35, -80)
+        >>> p.prepend(ll)
+        
+        :param value: New point to prepend onto the Polyline.
+        :type value: LatLng
+        
         '''        
         self._points.insert(0, value)
         self.__on_shape_changed()        
     
-    def insert(self, index, object):        
+    def insert(self, index, object): 
+        '''Inserts a new point at the specified index of the Polyline.
+        
+        >>> p = Polyline(LatLng(34, -80), LatLng(35, -80))
+        >>> ll = LatLng(34.5, -80)
+        >>> p.insert(1, ll)
+        
+        :param index: Index where the new point should be inserted.
+        :type index: number
+        :param object: New point to insert.
+        :type object: LatLng
+        
+        '''       
         self._points.insert(index, object)
         self.__on_shape_changed()    
     
     def add(self, other):
-        '''
-        Adds the points from this polyline with those from another to form a new longer polyline
+        '''Adds the points from this polyline with those from another to form a 
+        new longer polyline.
+        
+        :param other: Other Polyline
+        :type other: Polyline
+        :returns: New polyline, consisting of this Polyline, plus the other 
+        Polyline
+        :rtype: Polyline
+        
         '''  
         if self.last == other.first:
             #chop the first point off the other polyline so that we don't end up with duplicate points
@@ -256,9 +441,16 @@ class Polyline(object):
             return Polyline(self._points + list(other))
     
     def interpolate(self, ratio):
-        '''
-        Returns the point at ratio distance into the polyline. 
+        '''Returns the point at ratio distance into the polyline. 
+        
         0.0 returns the first point, 1.0 returns the last point.
+        
+        :param ratio: Distance ratio along the length of the Polyline
+        :type ratio: number
+        :returns: Interpolated point along the Polyline at the specified 
+        distance ratio.
+        :rtype: LatLng
+        
         '''
         if not (0.0 <= ratio <= 1.0):
             raise ValueError("Ratio must be between 0.0 and 1.0")
@@ -276,9 +468,19 @@ class Polyline(object):
         
     
     def splice(self, other):
-        '''
-        Splices a polyline to the end or beginning of this one. Ensures that the order of points for
-        this polyline stays the same, the other polyline will be reversed if necessary
+        '''Splices a polyline to the end or beginning of this one. Ensures that 
+        the order of points for this polyline stays the same, the other 
+        polyline will be reversed if necessary.
+        
+        One of the endpoints of the other Polyline must match one of the 
+        endpoints of this Polyline.
+        
+        :param other: Other polyline to splice onto this polyline.
+        :type other: Polyline
+        :returns: New polyline, the result of this polyline spliced with the 
+        other.
+        :rtype: Polyline
+        
         '''
         if self.first == other.last:
             return other.add(self)
@@ -292,8 +494,14 @@ class Polyline(object):
         raise Exception("Cannot splice polylines together, endpoints do not match")
     
     def splice_fuzzy(self, other):
-        '''
-        Like splice, but doesn't require endpoints match exactly.
+        '''Like splice, but doesn't require endpoints match exactly.
+        
+        :param other: Other polyline to splice onto this polyline.
+        :type other: Polyline
+        :returns: New polyline, the result of this polyline spliced with the 
+        other.
+        :rtype: Polyline
+        
         '''
         pairings = (
             (self.last, other.first, self.add(other)),
@@ -312,23 +520,39 @@ class Polyline(object):
         return best
     
     def closest_vertex(self, point):
-        '''
-        Returns the closest vertex in the polyline to the given point.
+        '''Returns the closest vertex in the polyline to the given point.
+        
+        :param point: Point to find the closest vertex for.
+        :type point: LatLng
+        :returns: Closest vertex point to the supplied point.
+        :rtype: LatLng
+        
         '''
         return min(self, key=lambda x: point.distance_to(x))
     
     def closest_point(self, point):
-        '''
-        Returns the closest point on the polyline to the given point,
+        '''Returns the closest point on the polyline to the given point,
         regardless of distance.
+        
+        :param point: Point to find the clsest point along the polyline for.
+        :type point: LatLng
+        :returns: Closest point on the Polyline (not necessarily a vertex)
+        :rtype: LatLng
+        
         '''
         candidates = [L.closest_point(point) for L in self.lines]
         return min(candidates, key=lambda x: x.distance_to(point))
     
     def split_at_angle(self, threshold=radians(60)):
-        '''
-        Splits the polyline wherever the change in direction angle is greater
-        than the threshold. Returns a list of polylines.
+        '''Splits the polyline wherever the change in direction angle is 
+        greater than the threshold. Returns a list of polylines.
+        
+        :param threshold: Threshold angle, in radians, where the polyline 
+        should be split.
+        :type threshold: number
+        :returns: List of polylines that are the result of splitting.
+        :rtype: list
+        
         '''
         if len(self) <= 2:
             return [list(self)]
@@ -349,6 +573,15 @@ class Polyline(object):
         return [Polyline(points) for points in result]
     
     def split_at(self, index):
+        '''Splits the polyline and returns the Polyline beyond the split point.
+        
+        :param index: Point index along the polyline where the split should 
+        occur.
+        :type index: number
+        :returns: Tail of the Polyline that was split off.
+        :rtype: Polyline
+        
+        '''
         old_points = self._points
         
         self._points = self._points[:index + 1]
@@ -357,6 +590,19 @@ class Polyline(object):
         return Polyline(old_points[index:])
                     
     def split_at_point(self, point, threshold):
+        '''Splits the polyline and returns the Polyline beyond the split point.
+        
+        Unlike split_at(index), this will split at any point along the Polyline 
+        instead of at an exact vertex index.
+        
+        :param point: Point to split at.
+        :type point: LatLng
+        :param threshold: TODO: comment this attribute
+        :type threshold: number
+        :returns: Tail of the Polyline that was split off.
+        :rtype: Polyline
+        
+        '''
         cur_buffer = [self.first]
         new_buffer = []
         has_split = False
@@ -378,8 +624,16 @@ class Polyline(object):
             return Polyline(new_buffer)
     
     def snap_point_all(self, latlng, options=None):
-        ''''
-        Finds the closets points on the polyline that is within the max_distance of the given point
+        ''''Finds the closets points on the polyline that is within the 
+        max_distance of the given point.
+        
+        :param latlng: TODO: comment this attribute
+        :type latlng: LatLng
+        :param options: Options for snapping.
+        :type options: SnapOptions
+        :returns: TODO: comment the return value.
+        :rtype: TODO: comment the return type.
+        
         '''
         
         options = options if options else SnapOptions()
@@ -425,9 +679,16 @@ class Polyline(object):
         return sorted(snaps, key=lambda snap: snap.distance_from_initial)
     
     def snap_point(self, latlng, options=None):
-        """        
-        Snaps a point using snap_point_all
-        into the polyline that the point snapped
+        """Snaps a point using snap_point_all into the polyline that the point 
+        snapped.
+        
+        :param latlng: Point to snap onto the Polyline
+        :type latlng: LatLng
+        :param options: Options for snapping.
+        :type options: SnapOptions
+        :returns: Snapped point.
+        :rtype: LatLng
+        
         """
         snaps = self.snap_point_all(latlng, options)
         if not snaps:
@@ -435,8 +696,16 @@ class Polyline(object):
         return snaps[0]
         
     def contains(self, other, max_distance):
-        '''
-        Determines if this segment contains another one
+        '''Determines if this segment contains another one.
+        
+        :param other: Other Polyline.
+        :type other: Polyline
+        :param max_distance: Maximum distance to allow for snapping.
+        :type max_distance: number
+        :returns: Whether or not the other polyline can snap onto this 
+        Polyline.
+        :rtype: bool
+        
         '''
         
         for latlng in other:
@@ -447,8 +716,17 @@ class Polyline(object):
         return True
     
     def subtract_from(self, other, max_distance):
-        '''
-        Returns the points that are in the other polyline that are not part of this one
+        '''Returns the points that are in the other polyline that are not part 
+        of this one.
+        
+        :param other: Other Polyline.
+        :type other: Polyline
+        :param max_distance: Maximum distance to allow for snapping.
+        :type max_distance: number
+        :returns: List of Polylines for the points on the other Polyline that 
+        couldn't be snapped (weren't "part" of this polyline)
+        :rtype: list
+        
         '''
         
         self_list = list(self)
